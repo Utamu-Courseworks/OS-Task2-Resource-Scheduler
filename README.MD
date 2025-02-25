@@ -127,6 +127,6 @@ This project is licensed under the [MIT License](LICENSE).
 ---
 
 ## Contact
-For any queries, contact **your-team-email@example.com** or create an issue in the GitHub repository.
+For any queries, contact **gorret.nabatanzi@student.utamu.ac.ug** or create an issue in the GitHub repository.
 
 Happy Coding! 🚀
