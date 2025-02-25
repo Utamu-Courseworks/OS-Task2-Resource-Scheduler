@@ -81,8 +81,8 @@ The system simulates the arrival of customers in a bank, each with:
 ## Installation & Setup
 1. **Clone the repository:**
    ```bash
-   git clone 
-   cd resource-scheduler
+   git clone https://github.com/Utamu-Courseworks/OS-Task2-Resource-Scheduler
+   cd OS-Task2-Resource-Scheduler
    ```
 2. **Run the application locally:**
    ```bash
