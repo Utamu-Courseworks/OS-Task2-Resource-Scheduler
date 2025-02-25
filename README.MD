@@ -81,7 +81,7 @@ The system simulates the arrival of customers in a bank, each with:
 ## Installation & Setup
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-team/resource-scheduler.git
+   git clone 
    cd resource-scheduler
    ```
 2. **Run the application locally:**
