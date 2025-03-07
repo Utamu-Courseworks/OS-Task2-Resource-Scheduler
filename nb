@@ -1,2 +1,0 @@
-Please Note NB: After cloning branch off from the master branch
-git checkout -b ema
