@@ -1,1 +1,0 @@
-# Defines project dependencies and metadata.
