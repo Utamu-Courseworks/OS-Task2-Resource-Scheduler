@@ -1,1 +1,15 @@
 #  Multi-container setup 
+version: "3.8"
+
+services:
+  web:
+    container_name: resource-scheduler-container
+    build: .
+    image: resource-scheduler  # Assigning the image name
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+    volumes:
+      - .:/app  # Mounting the local project folder into the container
+    command: flask run --host=0.0.0.0 --port=5000 --reload
