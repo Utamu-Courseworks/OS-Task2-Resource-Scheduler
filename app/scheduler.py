@@ -4,7 +4,7 @@ import random
 import time
 import threading
 
-from app.main import CUSTOMER_PRIORITIES, PERFORMANCE_METRICS
+from main import CUSTOMER_PRIORITIES, PERFORMANCE_METRICS
 from app.models.customer_model import Customer
 
 
