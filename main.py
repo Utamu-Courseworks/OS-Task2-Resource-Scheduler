@@ -3,7 +3,6 @@ from flask import Flask, jsonify, render_template
 import random
 import threading
 import time
-
 from app.models.agent_model import Agent
 from app.scheduler import Scheduler
 
