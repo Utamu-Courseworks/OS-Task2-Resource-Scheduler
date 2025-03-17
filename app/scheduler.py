@@ -27,3 +27,21 @@ class Scheduler:
             with self.lock:
                 self.customer_queue.append(customer)
             time.sleep(random.randint(2, 5))
+
+#Added function that automatically assigns a customer to an agent
+    def assign_customer(self):
+        """Assign customers to agents based on scheduling algorithms."""
+        while True:
+            if self.customer_queue:
+                with self.lock:
+                    self.customer_queue.sort(key=lambda x: PRIORITY_MAP[x.priority], reverse=True)
+                    customer = self.customer_queue.pop(0)
+                    available_agent = next((a for a in self.agents if a.can_take_task()), None)
+                    if available_agent:
+                        waiting_time = time.time() - customer.arrival_time
+                        performance_metrics["total_waiting_time"] += waiting_time
+                        available_agent.busy = True
+                        available_agent.workload += 1
+                        available_agent.current_task = customer  # Track the customer being served
+                        threading.Thread(target=self.process_customer, args=(available_agent, customer)).start()
+            time.sleep(1)        
