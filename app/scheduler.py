@@ -34,7 +34,7 @@ class Scheduler:
         while True:
             if self.customer_queue:
                 with self.lock:
-                    self.customer_queue.sort(key=lambda x: PRIORITY_MAP[x.priority], reverse=True)
+                    self.customer_queue.sort(key=lambda x: CUSTOMER_PRIORITIES[x.priority], reverse=True)
                     customer = self.customer_queue.pop(0)
                     available_agent = next((a for a in self.agents if a.can_take_task()), None)
                     if available_agent:
@@ -45,3 +45,14 @@ class Scheduler:
                         available_agent.current_task = customer  # Track the customer being served
                         threading.Thread(target=self.process_customer, args=(available_agent, customer)).start()
             time.sleep(1)        
+
+    def process_customer(self, agent, customer):
+        """Processes a customer request."""
+        start_time = time.time()
+        time.sleep(customer.service_time)
+        agent.total_busy_time += customer.service_time
+        performance_metrics["agent_utilization"][agent.id] += customer.service_time
+        performance_metrics["total_service_time"] += customer.service_time
+        performance_metrics["total_customers_served"] += 1
+        agent.busy = False
+        agent.current_task = None  # Clear the task after completion         
