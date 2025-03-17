@@ -14,7 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Defining environment variable
-ENV NAME World
+ENV NAME=World
+
 
 # Running the app.py when the container launches
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
