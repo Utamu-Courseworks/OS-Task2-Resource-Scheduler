@@ -1,12 +1,9 @@
 #Runs the scheduling simulation and manages customer-agent interactions.
 from flask import Flask, jsonify, render_template
-import random
 import threading
-import time
-from app.models.agent_model import Agent
-from app.scheduler import Scheduler
+from src.models.agent_model import Agent
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder="src/templates")
 
 # Defining customer priorities
 CUSTOMER_PRIORITIES = {"VIP": 3, "Corporate": 2, "Normal": 1}
@@ -19,18 +16,23 @@ PERFORMANCE_METRICS = {
     "agent_utilization": {},
 }
 
-# Initializing some agents and  the scheduler
-agents = [Agent(i) for i in range(5)]
-scheduler = Scheduler(agents)
+# Initialize agents
+#agents = [Agent(i) for i in range(5)]
+agents = [Agent(i, max_workload=3) for i in range(5)] 
 
-#Defining routes
+
+def start_scheduler():
+    from src.scheduler import Scheduler  # Import inside function
+    global scheduler
+    scheduler = Scheduler(agents)
+
+start_scheduler()
+
 @app.route("/")
 def index():
     """Render the UI."""
-    return render_template("index.html")
+    return render_template("dashboard.html")
 
-
-#Endpoint that returns the status of agents
 @app.route("/status", methods=["GET"])
 def get_status():
     """Returns agent workload and queue size."""
@@ -56,8 +58,8 @@ def get_performance():
     """Returns system performance metrics."""
     avg_waiting_time = (PERFORMANCE_METRICS["total_waiting_time"] / PERFORMANCE_METRICS["total_customers_served"]) if PERFORMANCE_METRICS["total_customers_served"] else 0
     avg_service_time = (PERFORMANCE_METRICS["total_service_time"] / PERFORMANCE_METRICS["total_customers_served"]) if PERFORMANCE_METRICS["total_customers_served"] else 0
-    agent_utilization_rates = {agent.id: (PERFORMANCE_METRICS["agent_utilization"][agent.id] / time.time()) for agent in agents}
-    
+    agent_utilization_rates = {agent.id: (PERFORMANCE_METRICS["agent_utilization"][agent.id] / threading.current_thread().ident) for agent in agents}
+
     return jsonify({
         "total_customers_served": PERFORMANCE_METRICS["total_customers_served"],
         "average_waiting_time": avg_waiting_time,
@@ -69,6 +71,3 @@ if __name__ == "__main__":
     threading.Thread(target=scheduler.generate_customers, daemon=True).start()
     threading.Thread(target=scheduler.assign_customer, daemon=True).start()
     app.run(debug=True)
-
-
-

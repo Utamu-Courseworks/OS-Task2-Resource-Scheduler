@@ -8,11 +8,16 @@ import time
 class Agent:
   
   #Agent constructor for new objects
-    def __init__(self, agent_id, max_workload):
-        self.agent_id = agent_id
+    def __init__(self,id, max_workload):
+        self.id = id
+        self.workload = 0
         self.max_workload = max_workload
         self.current_tasks = []  # List of assigned customers
         self.busy = False    
+        self.total_busy_time = 0
+     
+    def can_take_task(self):
+        return not self.busy and self.workload < self.max_workload    
 
     #Function to assign an agent automatically to the customer
     def assign_task(self, customer):
