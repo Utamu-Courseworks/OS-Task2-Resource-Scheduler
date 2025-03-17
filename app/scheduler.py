@@ -4,7 +4,7 @@ import random
 import time
 import threading
 
-from app.main import CUSTOMER_PRIORITIES
+from app.main import CUSTOMER_PRIORITIES, PERFORMANCE_METRICS
 from app.models.customer_model import Customer
 
 
@@ -39,7 +39,7 @@ class Scheduler:
                     available_agent = next((a for a in self.agents if a.can_take_task()), None)
                     if available_agent:
                         waiting_time = time.time() - customer.arrival_time
-                        performance_metrics["total_waiting_time"] += waiting_time
+                        PERFORMANCE_METRICS["total_waiting_time"] += waiting_time
                         available_agent.busy = True
                         available_agent.workload += 1
                         available_agent.current_task = customer  # Track the customer being served
@@ -51,8 +51,8 @@ class Scheduler:
         start_time = time.time()
         time.sleep(customer.service_time)
         agent.total_busy_time += customer.service_time
-        performance_metrics["agent_utilization"][agent.id] += customer.service_time
-        performance_metrics["total_service_time"] += customer.service_time
-        performance_metrics["total_customers_served"] += 1
+        PERFORMANCE_METRICS["agent_utilization"][agent.id] += customer.service_time
+        PERFORMANCE_METRICS["total_service_time"] += customer.service_time
+        PERFORMANCE_METRICS["total_customers_served"] += 1
         agent.busy = False
         agent.current_task = None  # Clear the task after completion         
