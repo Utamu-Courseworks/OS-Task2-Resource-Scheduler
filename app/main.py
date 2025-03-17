@@ -10,7 +10,7 @@ app = Flask(__name__)
 CUSTOMER_PRIORITIES = {"VIP": 3, "Corporate": 2, "Normal": 1}
 
 # Performance Metrics
-performance_metrics = {
+PERFORMANCE_METRICS = {
     "total_customers_served": 0,
     "total_waiting_time": 0,
     "total_service_time": 0,
