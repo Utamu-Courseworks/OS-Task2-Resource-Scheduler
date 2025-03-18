@@ -1,35 +1,31 @@
-#Importing required modules
 import time
 
-# Defines classes for Customer, Agent, and task handling
-
-#Agent class with its required attributes
-#  (agentId,availability, number of tasks, max workload) and agent functions
 class Agent:
-  
-  #Agent constructor for new objects
-    def __init__(self,id, max_workload):
+    def __init__(self, id, max_workload):
         self.id = id
         self.workload = 0
         self.max_workload = max_workload
         self.current_tasks = []  # List of assigned customers
         self.busy = False    
         self.total_busy_time = 0
-     
-    def can_take_task(self):
-        return not self.busy and self.workload < self.max_workload    
+        self.current_task = None
 
-    #Function to assign an agent automatically to the customer
+    def can_take_task(self):
+        """Check if the agent can take a new task"""
+        return self.workload < self.max_workload    
+
     def assign_task(self, customer):
-        if len(self.current_tasks) < self.max_workload:
+        """Assign a task to the agent if workload allows"""
+        if self.can_take_task():
             self.current_tasks.append(customer)
-            self.busy = True
+            self.workload += 1  # Increase workload
+            self.busy = self.workload >= self.max_workload  # Update busy status
             return True
         return False
-    
-    #Releasing a customer after
+
     def release_task(self, customer):
+        """Release a customer after task completion"""
         if customer in self.current_tasks:
             self.current_tasks.remove(customer)
-        self.busy = len(self.current_tasks) > 0    
-    
+            self.workload -= 1  # Reduce workload
+        self.busy = self.workload >= self.max_workload  # Update busy status

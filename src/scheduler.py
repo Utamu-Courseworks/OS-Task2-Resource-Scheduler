@@ -11,7 +11,7 @@ class Scheduler:
 
     def generate_customers(self):
         """Simulates random customer arrivals."""
-        from main import CUSTOMER_PRIORITIES  # Import inside method
+        from app import CUSTOMER_PRIORITIES  # Import inside method
         while True:
             customer = Customer(
                 customer_id=random.randint(1000, 9999),
@@ -25,7 +25,7 @@ class Scheduler:
 
     def assign_customer(self):
         """Assign customers to agents based on scheduling algorithms."""
-        from main import CUSTOMER_PRIORITIES, PERFORMANCE_METRICS  # Import inside method
+        from app import CUSTOMER_PRIORITIES, PERFORMANCE_METRICS  # Import inside method
         while True:
             if self.customer_queue:
                 with self.lock:
@@ -42,13 +42,20 @@ class Scheduler:
             time.sleep(1)
 
     def process_customer(self, agent, customer):
-        """Processes a customer request."""
-        from main import PERFORMANCE_METRICS  # Import inside method
-        start_time = time.time()
-        time.sleep(customer.service_time)
-        agent.total_busy_time += customer.service_time
-        PERFORMANCE_METRICS["agent_utilization"][agent.id] += customer.service_time
-        PERFORMANCE_METRICS["total_service_time"] += customer.service_time
-        PERFORMANCE_METRICS["total_customers_served"] += 1
-        agent.busy = False
-        agent.current_task = None  
+     """Processes a customer request."""
+     from app import PERFORMANCE_METRICS  # Import inside method
+    
+     # Ensure agent.id exists in PERFORMANCE_METRICS
+     if agent.id not in PERFORMANCE_METRICS["agent_utilization"]:
+        PERFORMANCE_METRICS["agent_utilization"][agent.id] = 0
+
+     start_time = time.time()
+     time.sleep(customer.service_time)
+    
+     agent.total_busy_time += customer.service_time
+     PERFORMANCE_METRICS["agent_utilization"][agent.id] += customer.service_time
+     PERFORMANCE_METRICS["total_service_time"] += customer.service_time
+     PERFORMANCE_METRICS["total_customers_served"] += 1
+    
+     agent.busy = False
+     agent.current_task = None
