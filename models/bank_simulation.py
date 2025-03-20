@@ -1,8 +1,10 @@
 import time
 import threading
-from .customer import Customer
-from .agent import Agent
+
 from datetime import datetime
+
+from models.agent_model import Agent
+from models.customer_model import Customer
 
 class BankSimulation:
     def __init__(self):
