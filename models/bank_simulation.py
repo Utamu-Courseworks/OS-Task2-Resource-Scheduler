@@ -94,4 +94,28 @@ class BankSimulation:
     #Function to get agent data
     def get_agent_data(self):
         with self.lock:
-            return [(a.id, a.status, a.workload, a.customers_served) for a in self.agents]  # Include customers_served                      
+            return [(a.id, a.status, a.workload, a.customers_served) for a in self.agents]  # Include customers_served   
+
+
+
+  #Perfomance metrics function
+    def calculate_metrics(self):
+        with self.lock:
+            served_customers = [c for c in self.customers if c.served]
+            avg_waiting_time = sum(c.wait_time for c in served_customers if c.wait_time) / len(served_customers) if served_customers else 0
+            total_work = sum(a.total_busy_time for a in self.agents)
+            utilization_rates = [(a.id, round((a.total_busy_time / total_work) * 100, 2) if total_work else 0) for a in self.agents]
+            fairness = max(a.workload for a in self.agents) - min(a.workload for a in self.agents)
+            return avg_waiting_time, utilization_rates, fairness
+
+#Function to restart the simulation
+    def reset_simulation(self):
+        with self.lock:
+            self.customers = []
+            self.queue = []
+            for agent in self.agents:
+                agent.workload = 0
+                agent.status = 'Free'
+                agent.total_busy_time = 0
+                agent.customers_served = 0
+                agent.start_busy_time = None                        
