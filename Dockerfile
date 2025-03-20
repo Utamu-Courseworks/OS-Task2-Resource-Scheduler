@@ -1,20 +1,21 @@
-# Use an official Python image
+# Using an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# Install system dependencies for Tkinter
-RUN apt-get update && apt-get install -y \
-    python3-tk \
-    && apt-get clean
-
-# Set the working directory
+# Setting the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . .
+# Copying the current directory contents into the container at /app
+COPY . /app
 
-# Install Python dependencies
+# Installing any needed dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Making port 5000 available to the world outside the container
+EXPOSE 5000
 
-# Command to run the application
+# Defining environment variable
+ENV NAME=World
+
+
+# Running the app.py when the container launches
 CMD ["python", "app.py"]

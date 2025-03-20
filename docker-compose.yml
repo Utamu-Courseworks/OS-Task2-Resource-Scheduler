@@ -1,17 +1,15 @@
+#  Multi-container setup 
 version: "3.8"
 
 services:
-  resource-scheduler:
+  web:
     container_name: resource-scheduler-container
     build: .
     image: resource-scheduler  # Assigning the image name
+    ports:
+      - "5000:5000"
     environment:
-      - DISPLAY=${DISPLAY}  # Set DISPLAY to your system's environment
+      - FLASK_ENV=production
     volumes:
-      - .:/app  # Mount the local project folder into the container
-    command: python app.py  # Command to run your Python Tkinter application
-    # Note: If running on Windows, DISPLAY might not work as expected. You may need to configure X11 or VNC
-    # For Windows, you might also use VNC for accessing the UI
-    # In this case, you can replace the above with something like:
-    # command: python your_tkinter_app.py
-    # If you want to work with GUI apps via Docker on Windows, you might need extra steps for display forwarding.
+      - .:/app  # Mounting the local project folder into the container
+    command: flask run --host=0.0.0.0 --port=5000 --reload
