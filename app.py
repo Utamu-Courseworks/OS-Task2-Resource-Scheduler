@@ -1,13 +1,10 @@
-#Runs the scheduling simulation and manages customer-agent interactions.
-from flask import Flask, jsonify, render_template
 import random
+from flask import Flask, jsonify, render_template, request
 import threading
-import time
+from src.models.agent_model import Agent
+from src.scheduler import Scheduler  # Import Scheduler here
 
-from app.models.agent_model import Agent
-from app.scheduler import Scheduler
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder="src/templates")
 
 # Defining customer priorities
 CUSTOMER_PRIORITIES = {"VIP": 3, "Corporate": 2, "Normal": 1}
@@ -20,18 +17,22 @@ PERFORMANCE_METRICS = {
     "agent_utilization": {},
 }
 
-# Initializing some agents and  the scheduler
-agents = [Agent(i) for i in range(5)]
-scheduler = Scheduler(agents)
+# Initialize agents
+agents = [Agent(i, max_workload=random.randint(2, 5)) for i in range(5)]
 
-#Defining routes
+# Initialize scheduler with default algorithm (priority)
+scheduler = Scheduler(agents, scheduling_algorithm="priority")
+
+def start_scheduler():
+    global scheduler
+    scheduler = Scheduler(agents)
+
+start_scheduler()
+
 @app.route("/")
 def index():
-    """Render the UI."""
-    return render_template("index.html")
+    return render_template("dashboard.html")
 
-
-#Endpoint that returns the status of agents
 @app.route("/status", methods=["GET"])
 def get_status():
     """Returns agent workload and queue size."""
@@ -57,8 +58,8 @@ def get_performance():
     """Returns system performance metrics."""
     avg_waiting_time = (PERFORMANCE_METRICS["total_waiting_time"] / PERFORMANCE_METRICS["total_customers_served"]) if PERFORMANCE_METRICS["total_customers_served"] else 0
     avg_service_time = (PERFORMANCE_METRICS["total_service_time"] / PERFORMANCE_METRICS["total_customers_served"]) if PERFORMANCE_METRICS["total_customers_served"] else 0
-    agent_utilization_rates = {agent.id: (PERFORMANCE_METRICS["agent_utilization"][agent.id] / time.time()) for agent in agents}
-    
+    agent_utilization_rates = {agent.id: (PERFORMANCE_METRICS["agent_utilization"].get(agent.id, 0) / PERFORMANCE_METRICS["total_service_time"]) for agent in agents}
+
     return jsonify({
         "total_customers_served": PERFORMANCE_METRICS["total_customers_served"],
         "average_waiting_time": avg_waiting_time,
@@ -66,10 +67,21 @@ def get_performance():
         "agent_utilization": agent_utilization_rates
     })
 
+@app.route("/set_algorithm", methods=["POST"])
+def set_algorithm():
+    """Changes the scheduling algorithm dynamically."""
+    global scheduler
+    data = request.get_json()
+    selected_algorithm = data.get('algorithm', 'priority')  # Default to 'priority'
+    
+    # Update the scheduling algorithm
+    scheduler.scheduling_algorithm = selected_algorithm
+
+    return jsonify({"status": "success", "algorithm": scheduler.scheduling_algorithm})
+
 if __name__ == "__main__":
+    # Start customer generation and assignment in separate threads
     threading.Thread(target=scheduler.generate_customers, daemon=True).start()
     threading.Thread(target=scheduler.assign_customer, daemon=True).start()
-    app.run(debug=True)
 
-
-
+    app.run(debug=True, host='0.0.0.0', port=5000)

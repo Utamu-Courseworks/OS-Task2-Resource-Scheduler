@@ -18,4 +18,4 @@ ENV NAME=World
 
 
 # Running the app.py when the container launches
-CMD ["python", "main.py"]
+CMD ["python", "app.py"]
