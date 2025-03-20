@@ -5,12 +5,13 @@ services:
     container_name: resource-scheduler-container
     build: .
     image: resource-scheduler  # Assigning the image name
-    volumes:
-      - .:/app  # Mounting the local project folder into the container
     environment:
-      - DISPLAY=${DISPLAY}  # Use the host machine's DISPLAY for GUI output
-    stdin_open: true  # Keep the terminal open for interactive apps
-    tty: true  # Allocate a pseudo-TTY (needed for Tkinter apps)
-    network_mode: host  # Necessary for X11 forwarding in Linux (for GUI apps)
-    command: python3 /app.py  # Replace with your Python script
-
+      - DISPLAY=${DISPLAY}  # Set DISPLAY to your system's environment
+    volumes:
+      - .:/app  # Mount the local project folder into the container
+    command: python app.py  # Command to run your Python Tkinter application
+    # Note: If running on Windows, DISPLAY might not work as expected. You may need to configure X11 or VNC
+    # For Windows, you might also use VNC for accessing the UI
+    # In this case, you can replace the above with something like:
+    # command: python your_tkinter_app.py
+    # If you want to work with GUI apps via Docker on Windows, you might need extra steps for display forwarding.
