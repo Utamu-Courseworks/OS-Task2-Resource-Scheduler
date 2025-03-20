@@ -65,4 +65,33 @@ class BankSimulation:
             agent.workload -= 1
             agent.customers_served += 1  # Incrementing the number of customers served by the agent
             agent.total_busy_time += time.time() - customer.start_service_time
-            agent.start_busy_time = None                  
+            agent.start_busy_time = None    
+
+    #Function to get customer data
+    def get_customer_data(self):
+        with self.lock:
+            customer_data = []
+            for c in self.customers:
+                if c.served:
+                    # If customer has been served, show finish time and wait time
+                    finish_time = datetime.fromtimestamp(c.arrival_time + c.service_time).strftime("%H:%M:%S")  # Assuming service time is when finished
+                    wait_time = round(c.wait_time, 2) if c.wait_time else 'N/A'
+                    status = "Finished"
+                elif c.start_service_time:
+                    # If customer is being served
+                    finish_time = "Being Served"
+                    wait_time = "Calculating..."  # Wait time in process
+                    status = "Being Served"
+                else:
+                    # If customer is waiting
+                    finish_time = "Still Waiting"
+                    wait_time = "Still Waiting"
+                    status = "Waiting"
+
+                customer_data.append((c.id, c.priority, c.service_time, c.formatted_arrival, wait_time, status, finish_time))
+
+            return customer_data
+    #Function to get agent data
+    def get_agent_data(self):
+        with self.lock:
+            return [(a.id, a.status, a.workload, a.customers_served) for a in self.agents]  # Include customers_served                      
