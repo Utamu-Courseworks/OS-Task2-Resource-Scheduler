@@ -13,9 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Making port 5000 available to the world outside the container
 EXPOSE 5000
 
-# Defining environment variable
-ENV NAME=World
-
+# Define environment variable
+ENV FLASK_APP=app.py
 
 # Running the app.py when the container launches
-CMD ["python", "app.py"]
+CMD ["gunicorn", "-w", "4","python", "app.py"]
