@@ -17,7 +17,7 @@ class SimulationUI:
         self.customer_label.pack(fill="x")
         self.customer_tree = ttk.Treeview(self.customer_frame, columns=("ID", "Priority", "Service Time", "Arrival Time", "Wait Time", "Status", "Finish Time"), show="headings")
 
-        # Set column widths for responsiveness
+        # Setting the  column widths for responsiveness
         self.customer_tree.column("ID", width=50, anchor="center")
         self.customer_tree.column("Priority", width=100, anchor="center")
         self.customer_tree.column("Service Time", width=100, anchor="center")
