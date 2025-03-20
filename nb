@@ -3,3 +3,6 @@ After cloning branch off from the master branch
 git checkout -b emmanuel
 git checkout -b rhoda
 
+DESC departments
+use schoolDb
+create database name

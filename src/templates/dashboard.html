@@ -28,10 +28,23 @@
         .busy {
             background-color: red;
         }
+        .algorithm-select {
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
     <h1>System Performance Dashboard</h1>
+
+    <!-- Scheduling Algorithm Selector -->
+    <div class="algorithm-select">
+        <label for="algorithm">Select Scheduling Algorithm:</label>
+        <select id="algorithm" onchange="updateAlgorithm()">
+            <option value="priority">Priority Scheduling</option>
+            <option value="shortest_job_next">Shortest Job Next</option>
+            <option value="round_robin">Round Robin</option>
+        </select>
+    </div>
 
     <h2>Agent Status</h2>
     <div id="agentStatus" class="agent-status"></div>
@@ -45,6 +58,7 @@
                 .then(data => {
                     updateAgentChart(data.agents);
                     updateAgentStatus(data.agents);
+                    updateCurrentAlgorithm(data.algorithm);  // Update current selected algorithm
                 });
         }
 
@@ -69,6 +83,22 @@
             });
         }
 
+        function updateAlgorithm(algorithm) {
+            // Send the selected algorithm to the backend
+            fetch('/set_algorithm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ algorithm: algorithm })
+            });
+        }
+
+        function updateCurrentAlgorithm(algorithm) {
+            // Display the currently selected algorithm
+            document.getElementById('currentAlgorithm').textContent = `Current Algorithm: ${algorithm}`;
+        }
+
         const agentChart = new Chart(document.getElementById('agentChart'), {
             type: 'bar',
             data: {
@@ -91,5 +121,7 @@
         setInterval(fetchData, 5000);
         fetchData(); // Fetch immediately on load
     </script>
+
+    <p id="currentAlgorithm">Current Algorithm: Priority Scheduling</p> <!-- Initially set to Priority -->
 </body>
 </html>
