@@ -25,3 +25,14 @@ class BankSimulation:
             self.priority_scheduling()
         elif algorithm == 'round_robin':
             self.round_robin_scheduling()
+
+    #priority scheduling functionality 
+    def priority_scheduling(self):
+        with self.lock:
+            self.queue.sort(key=lambda x: {'VIP': 1, 'Corporate': 2, 'Normal': 3}[x.priority])
+            available_agents = [a for a in self.agents if a.status == 'Free']  # Find available agents
+
+        for customer in self.queue:
+            if available_agents:
+                agent = available_agents.pop(0)
+                threading.Thread(target=self.assign_customer_to_agent, args=(agent, customer), daemon=True).start()        
