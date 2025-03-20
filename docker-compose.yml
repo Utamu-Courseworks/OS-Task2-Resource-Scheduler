@@ -1,15 +1,16 @@
-#  Multi-container setup 
 version: "3.8"
 
 services:
-  web:
+  resource-scheduler:
     container_name: resource-scheduler-container
     build: .
     image: resource-scheduler  # Assigning the image name
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=production
     volumes:
       - .:/app  # Mounting the local project folder into the container
-    command: flask run --host=0.0.0.0 --port=5000 --reload
+    environment:
+      - DISPLAY=${DISPLAY}  # Use the host machine's DISPLAY for GUI output
+    stdin_open: true  # Keep the terminal open for interactive apps
+    tty: true  # Allocate a pseudo-TTY (needed for Tkinter apps)
+    network_mode: host  # Necessary for X11 forwarding in Linux (for GUI apps)
+    command: python3 /app.py  # Replace with your Python script
+
