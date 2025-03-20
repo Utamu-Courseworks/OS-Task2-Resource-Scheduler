@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-4">Simulation Dashboard</h1>
+
+        <!-- Simulation Controls -->
+        <div class="flex items-center mb-6">
+            <button id="startSimulationButton" class="bg-blue-500 text-white px-4 py-2 rounded mr-4">Start
+                Simulation</button>
+            <button id="restartSimulationButton" class="bg-green-500 text-white px-4 py-2 rounded hidden">Restart
+                Simulation</button>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="bg-white p-4 rounded shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-2">Performance Metrics</h2>
+            <div id="metrics">
+                <p id="avgWaitTime" class="mb-2 text-lg">Average Customer Wait Time: 0 minutes</p>
+                <p id="agentUtilizationRate" class="mb-2 text-lg">Agent Utilization Rate: 0%</p>
+                <p id="taskFairness" class="mb-2 text-lg">Task Distribution Fairness: 0</p>
+            </div>
+        </div>
+
+        <!-- Customer Table -->
+        <div class="bg-white p-4 rounded shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-2">Customer Data</h2>
+            <table id="customerTable" class="w-full table-auto">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 border">ID</th>
+                        <th class="px-4 py-2 border">Priority</th>
+                        <th class="px-4 py-2 border">Service Time</th>
+                        <th class="px-4 py-2 border">Arrival Time</th>
+                        <th class="px-4 py-2 border">Status</th>
+                        <th class="px-4 py-2 border">Wait Time</th>
+                        <th class="px-4 py-2 border">Finish Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Customer data rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Agent Table -->
+        <div class="bg-white p-4 rounded shadow-md">
+            <h2 class="text-xl font-semibold mb-2">Agent Data</h2>
+            <table id="agentTable" class="w-full table-auto">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 border">ID</th>
+                        <th class="px-4 py-2 border">Name</th>
+                        <th class="px-4 py-2 border">Workload</th>
+                        <th class="px-4 py-2 border">Total Customers</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Agent data rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Skeleton loader for customer and agent tables -->
+    <div id="skeletonLoader" class="hidden">
+        <div class="bg-white p-4 rounded shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-2">Customer Data</h2>
+            <div class="animate-pulse space-y-4">
+                <div class="h-6 bg-gray-200 rounded"></div>
+                <div class="h-6 bg-gray-200 rounded"></div>
+                <div class="h-6 bg-gray-200 rounded"></div>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow-md">
+            <h2 class="text-xl font-semibold mb-2">Agent Data</h2>
+            <div class="animate-pulse space-y-4">
+                <div class="h-6 bg-gray-200 rounded"></div>
+                <div class="h-6 bg-gray-200 rounded"></div>
+                <div class="h-6 bg-gray-200 rounded"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
+    <script>
+        // Update performance metrics after each data fetch or simulation event
+        function updatePerformanceMetrics() {
+            fetch('/get_metrics')
+                .then(response => response.json())
+                .then(metrics => {
+                    const avgWaitTime = metrics.avg_wait; // average wait time
+                    const utilizationRate = metrics.utilization; // agent utilization rates
+                    const taskFairness = metrics.fairness; // task distribution fairness
+
+                    // Update the UI with the fetched metrics
+                    document.getElementById('avgWaitTime').textContent = `Average Customer Wait Time: ${avgWaitTime.toFixed(2)} minutes`;
+
+                    // Assuming you want to display the average utilization rate of agents
+                    const avgUtilization = utilizationRate.reduce((acc, agent) => acc + agent[1], 0) / utilizationRate.length;
+                    document.getElementById('agentUtilizationRate').textContent = `Agent Utilization Rate: ${avgUtilization.toFixed(2)}%`;
+
+                    document.getElementById('taskFairness').textContent = `Task Distribution Fairness: ${taskFairness}`;
+                })
+                .catch(error => {
+                    console.error('Error updating performance metrics:', error);
+                });
+        }
+
+        // Start the simulation
+        document.getElementById('startSimulationButton').onclick = function () {
+            fetch('/start_simulation', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById('startSimulationButton').style.display = 'none';
+                    document.getElementById('restartSimulationButton').style.display = 'inline-block';
+
+                    // Update performance metrics after simulation start
+                    updatePerformanceMetrics();
+                })
+                .catch(error => {
+                    console.error('Error starting simulation:', error);
+                });
+        };
+
+        // Restart the simulation
+        document.getElementById('restartSimulationButton').onclick = function () {
+            fetch('/restart_simulation', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById('restartSimulationButton').style.display = 'none';
+                    document.getElementById('startSimulationButton').style.display = 'inline-block';
+
+                    // Update performance metrics after simulation restart
+                    updatePerformanceMetrics();
+                })
+                .catch(error => {
+                    console.error('Error restarting simulation:', error);
+                });
+        };
+
+        // Function to render customer data in the table
+        function renderCustomerData() {
+            const customerTableBody = document.querySelector("#customerTable tbody");
+            customerTableBody.innerHTML = ""; // Clear existing data
+
+            allCustomers.forEach(customer => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="px-4 py-2 border">${customer[0]}</td>
+            <td class="px-4 py-2 border">${customer[1]}</td>
+                       <td class="px-4 py-2 border">${customer[2]}</td>
+            <td class="px-4 py-2 border">${customer[3]}</td>
+                        <td class="px-4 py-2 border">${customer[5]}</td>
+                                    <td class="px-4 py-2 border">${customer[4]}</td>
+            <td class="px-4 py-2 border">${customer[6]} min</td>
+        `;
+                customerTableBody.appendChild(row);
+            });
+        }
+
+        // Function to render agent data in the table
+        function renderAgentData() {
+            const agentTableBody = document.querySelector("#agentTable tbody");
+            agentTableBody.innerHTML = ""; // Clear existing data
+
+            allAgents.forEach(agent => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td class="px-4 py-2 border">${agent[0]}</td>
+            <td class="px-4 py-2 border">${agent[1]}</td>
+            <td class="px-4 py-2 border">${agent[2]}</td>
+                       <td class="px-4 py-2 border">${agent[3]}</td>
+        `;
+                agentTableBody.appendChild(row);
+            });
+        }
+
+
+        // Fetch customer data and update the table
+        function fetchCustomerData() {
+            fetch('/get_customer_data')
+                .then(response => response.json())
+                .then(data => {
+                    allCustomers = data.customers;
+                    renderCustomerData();
+
+                    // Update performance metrics after fetching customer data
+                    updatePerformanceMetrics();
+                })
+                .catch(error => {
+                    console.error('Error fetching customer data:', error);
+                });
+        }
+
+        // Fetch agent data and update the table
+        function fetchAgentData() {
+            fetch('/get_agent_data')
+                .then(response => response.json())
+                .then(data => {
+                    allAgents = data.agents;
+                    renderAgentData();
+
+                    // Update performance metrics after fetching agent data
+                    updatePerformanceMetrics();
+                })
+                .catch(error => {
+                    console.error('Error fetching agent data:', error);
+                });
+        }
+
+        // Initialize fetching customer and agent data
+        fetchCustomerData();
+        fetchAgentData();
+
+        // Update customer and agent data every 3 seconds
+        setInterval(fetchCustomerData, 3000);
+        setInterval(fetchAgentData, 3000);
+
+    </script>
+</body>
+
+</html>
